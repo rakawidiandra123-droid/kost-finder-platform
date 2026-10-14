@@ -219,6 +219,7 @@ export interface backendInterface {
     _internet_identity_sign_in_finish(): Promise<Result__1>;
     _internet_identity_sign_in_start(): Promise<Uint8Array>;
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    claimAdmin(): Promise<void>;
     createBooking(input: BookingInput): Promise<BookingRequest>;
     createRoom(input: RoomInput): Promise<Room>;
     deleteRoom(id: RoomId): Promise<boolean>;
@@ -373,6 +374,20 @@ export class Backend implements backendInterface {
             }
         } else {
             const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n12(this._uploadFile, this._downloadFile, arg1));
+            return result;
+        }
+    }
+    async claimAdmin(): Promise<void> {
+        if (this.processError) {
+            try {
+                const result = await this.actor.claimAdmin();
+                return result;
+            } catch (e) {
+                this.processError(e);
+                throw new Error("unreachable");
+            }
+        } else {
+            const result = await this.actor.claimAdmin();
             return result;
         }
     }

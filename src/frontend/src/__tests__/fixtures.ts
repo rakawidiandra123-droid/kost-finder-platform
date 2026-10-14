@@ -30,6 +30,7 @@ export interface RoomsBookingsActor {
     status: BookingStatus,
   ): Promise<BookingRequest | null>;
   isCallerAdmin(): Promise<boolean>;
+  claimAdmin(): Promise<void>;
 }
 
 /**

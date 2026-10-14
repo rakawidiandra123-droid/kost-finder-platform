@@ -37383,6 +37383,7 @@ Service({
   "_internet_identity_sign_in_finish": Func([], [Result__1], []),
   "_internet_identity_sign_in_start": Func([], [Vec(Nat8)], []),
   "assignCallerUserRole": Func([Principal2, UserRole], [], []),
+  "claimAdmin": Func([], [], []),
   "createBooking": Func([BookingInput], [BookingRequest], []),
   "createRoom": Func([RoomInput], [Room], []),
   "deleteRoom": Func([RoomId], [Bool], []),
@@ -37550,6 +37551,7 @@ const idlFactory = ({ IDL: IDL2 }) => {
     "_internet_identity_sign_in_finish": IDL2.Func([], [Result__12], []),
     "_internet_identity_sign_in_start": IDL2.Func([], [IDL2.Vec(IDL2.Nat8)], []),
     "assignCallerUserRole": IDL2.Func([IDL2.Principal, UserRole2], [], []),
+    "claimAdmin": IDL2.Func([], [], []),
     "createBooking": IDL2.Func([BookingInput2], [BookingRequest2], []),
     "createRoom": IDL2.Func([RoomInput2], [Room2], []),
     "deleteRoom": IDL2.Func([RoomId2], [IDL2.Bool], []),
@@ -37728,6 +37730,20 @@ class Backend {
       }
     } else {
       const result = await this.actor.assignCallerUserRole(arg0, to_candid_UserRole_n12(this._uploadFile, this._downloadFile, arg1));
+      return result;
+    }
+  }
+  async claimAdmin() {
+    if (this.processError) {
+      try {
+        const result = await this.actor.claimAdmin();
+        return result;
+      } catch (e) {
+        this.processError(e);
+        throw new Error("unreachable");
+      }
+    } else {
+      const result = await this.actor.claimAdmin();
       return result;
     }
   }
@@ -38201,12 +38217,24 @@ function useAuth() {
     enabled: !!actor && !isFetching && isAuthenticated,
     retry: false
   });
+  const claimAdminMutation = useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error("Backend belum siap.");
+      await actor.claimAdmin();
+    },
+    onSuccess: async () => {
+      await queryClient2.invalidateQueries({ queryKey: ["isCallerAdmin"] });
+    }
+  });
   const handleSignIn = () => {
     login();
   };
   const handleSignOut = () => {
     clear();
     queryClient2.clear();
+  };
+  const handleClaimAdmin = () => {
+    claimAdminMutation.mutate();
   };
   return {
     identity,
@@ -38218,7 +38246,10 @@ function useAuth() {
     isAdmin: adminQuery.data ?? false,
     isAdminLoading: isAuthenticated && adminQuery.isLoading,
     signIn: handleSignIn,
-    signOut: handleSignOut
+    signOut: handleSignOut,
+    claimAdmin: handleClaimAdmin,
+    isClaimingAdmin: claimAdminMutation.isPending,
+    claimAdminError: claimAdminMutation.error
   };
 }
 var prefix = "Invariant failed";
@@ -44007,7 +44038,15 @@ const NAV_LINKS = [
 ];
 function Layout({ children }) {
   const [mobileOpen, setMobileOpen] = reactExports.useState(false);
-  const { isAuthenticated, isAdmin, signIn, signOut, isInitializing } = useAuth();
+  const {
+    isAuthenticated,
+    isAdmin,
+    signIn,
+    signOut,
+    isInitializing,
+    claimAdmin,
+    isClaimingAdmin
+  } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdminArea = pathname.startsWith("/admin");
   return /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex min-h-screen flex-col bg-background", children: [
@@ -44062,20 +44101,37 @@ function Layout({ children }) {
               ]
             }
           )
-        ] }) : isAuthenticated ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            type: "button",
-            variant: "outline",
-            size: "sm",
-            "data-ocid": "nav.sign_out_button",
-            onClick: signOut,
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(LogOut, { className: "size-4", "aria-hidden": "true" }),
-              "Keluar"
-            ]
-          }
-        ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        ] }) : isAuthenticated ? /* @__PURE__ */ jsxRuntimeExports.jsxs(jsxRuntimeExports.Fragment, { children: [
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Button,
+            {
+              type: "button",
+              variant: "outline",
+              size: "sm",
+              "data-ocid": "nav.claim_admin_button",
+              onClick: claimAdmin,
+              disabled: isClaimingAdmin,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { className: "size-4", "aria-hidden": "true" }),
+                isClaimingAdmin ? "Mengklaim…" : "Klaim akses admin"
+              ]
+            }
+          ),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Button,
+            {
+              type: "button",
+              variant: "outline",
+              size: "sm",
+              "data-ocid": "nav.sign_out_button",
+              onClick: signOut,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(LogOut, { className: "size-4", "aria-hidden": "true" }),
+                "Keluar"
+              ]
+            }
+          )
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
             type: "button",
@@ -44127,23 +44183,43 @@ function Layout({ children }) {
             }
           ) : null
         ] }),
-        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3", children: isAuthenticated ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
-          Button,
-          {
-            type: "button",
-            variant: "outline",
-            className: "w-full",
-            "data-ocid": "nav.mobile.sign_out_button",
-            onClick: () => {
-              signOut();
-              setMobileOpen(false);
-            },
-            children: [
-              /* @__PURE__ */ jsxRuntimeExports.jsx(LogOut, { className: "size-4", "aria-hidden": "true" }),
-              "Keluar"
-            ]
-          }
-        ) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
+        /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "mt-3", children: isAuthenticated ? /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "flex flex-col gap-2", children: [
+          !isAdmin ? /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Button,
+            {
+              type: "button",
+              variant: "outline",
+              className: "w-full",
+              "data-ocid": "nav.mobile.claim_admin_button",
+              onClick: () => {
+                claimAdmin();
+                setMobileOpen(false);
+              },
+              disabled: isClaimingAdmin,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { className: "size-4", "aria-hidden": "true" }),
+                isClaimingAdmin ? "Mengklaim…" : "Klaim akses admin"
+              ]
+            }
+          ) : null,
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Button,
+            {
+              type: "button",
+              variant: "outline",
+              className: "w-full",
+              "data-ocid": "nav.mobile.sign_out_button",
+              onClick: () => {
+                signOut();
+                setMobileOpen(false);
+              },
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(LogOut, { className: "size-4", "aria-hidden": "true" }),
+                "Keluar"
+              ]
+            }
+          )
+        ] }) : /* @__PURE__ */ jsxRuntimeExports.jsxs(
           Button,
           {
             type: "button",
@@ -44401,7 +44477,15 @@ function SignInPrompt({
   );
 }
 function RequireAdmin({ children }) {
-  const { isAuthenticated, isInitializing, isAdmin, isAdminLoading } = useAuth();
+  const {
+    isAuthenticated,
+    isInitializing,
+    isAdmin,
+    isAdminLoading,
+    claimAdmin,
+    isClaimingAdmin,
+    claimAdminError
+  } = useAuth();
   if (isInitializing) {
     return /* @__PURE__ */ jsxRuntimeExports.jsx(LoadingState, { label: "Memeriksa sesi…" });
   }
@@ -44422,8 +44506,23 @@ function RequireAdmin({ children }) {
           /* @__PURE__ */ jsxRuntimeExports.jsx("div", { className: "flex size-14 items-center justify-center rounded-full bg-destructive/10 text-destructive", children: /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldAlert, { className: "size-7", "aria-hidden": "true" }) }),
           /* @__PURE__ */ jsxRuntimeExports.jsxs("div", { className: "space-y-2", children: [
             /* @__PURE__ */ jsxRuntimeExports.jsx("h1", { className: "font-display text-2xl font-bold tracking-tight text-foreground", children: "Akses ditolak" }),
-            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Akun Anda tidak memiliki hak akses admin untuk halaman ini." })
-          ] })
+            /* @__PURE__ */ jsxRuntimeExports.jsx("p", { className: "text-sm text-muted-foreground", children: "Akun Anda tidak memiliki hak akses admin untuk halaman ini. Jika Anda pemilik aplikasi, klaim akses admin di bawah ini." })
+          ] }),
+          /* @__PURE__ */ jsxRuntimeExports.jsxs(
+            Button,
+            {
+              type: "button",
+              size: "lg",
+              "data-ocid": "claim_admin_button",
+              onClick: claimAdmin,
+              disabled: isClaimingAdmin,
+              children: [
+                /* @__PURE__ */ jsxRuntimeExports.jsx(ShieldCheck, { className: "size-4", "aria-hidden": "true" }),
+                isClaimingAdmin ? "Mengklaim…" : "Klaim akses admin"
+              ]
+            }
+          ),
+          claimAdminError ? /* @__PURE__ */ jsxRuntimeExports.jsx("p", { role: "alert", className: "text-sm text-destructive", children: claimAdminError.message || "Gagal mengklaim akses admin. Silakan coba lagi." }) : null
         ]
       }
     );

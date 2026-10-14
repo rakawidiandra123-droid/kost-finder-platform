@@ -208,3 +208,32 @@ it("rejects a non-admin caller mutating rooms", async () => {
     }),
   ).rejects.toThrow();
 });
+
+it("treats claimAdmin by an already-registered admin as a no-op", async () => {
+  // `admin` is the first caller registered on this canister, so it holds the
+  // admin role; claimAdmin must be idempotent for it.
+  const adminActor = await registerCaller(
+    pic!.createActor<_SERVICE>(idlFactory, canisterId),
+    admin,
+  );
+
+  await expect(adminActor.isCallerAdmin()).resolves.toBe(true);
+  await expect(adminActor.claimAdmin()).resolves.toBeNull();
+  await expect(adminActor.isCallerAdmin()).resolves.toBe(true);
+});
+
+it("rejects claimAdmin from a registered non-admin once an admin exists", async () => {
+  const claimant = createIdentity("kostku-claimant");
+  const claimantActor = await registerCaller(
+    pic!.createActor<_SERVICE>(idlFactory, canisterId),
+    claimant,
+  );
+
+  await expect(claimantActor.isCallerAdmin()).resolves.toBe(false);
+  await expect(claimantActor.claimAdmin()).rejects.toThrow();
+});
+
+it("rejects an anonymous caller claiming admin", async () => {
+  const guest = pic!.createActor<_SERVICE>(idlFactory, canisterId);
+  await expect(guest.claimAdmin()).rejects.toThrow();
+});

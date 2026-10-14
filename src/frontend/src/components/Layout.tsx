@@ -18,8 +18,15 @@ interface LayoutProps {
 
 export function Layout({ children }: LayoutProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { isAuthenticated, isAdmin, signIn, signOut, isInitializing } =
-    useAuth();
+  const {
+    isAuthenticated,
+    isAdmin,
+    signIn,
+    signOut,
+    isInitializing,
+    claimAdmin,
+    isClaimingAdmin,
+  } = useAuth();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isAdminArea = pathname.startsWith("/admin");
 
@@ -76,16 +83,29 @@ export function Layout({ children }: LayoutProps) {
                 </Button>
               </>
             ) : isAuthenticated ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                data-ocid="nav.sign_out_button"
-                onClick={signOut}
-              >
-                <LogOut className="size-4" aria-hidden="true" />
-                Keluar
-              </Button>
+              <>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  data-ocid="nav.claim_admin_button"
+                  onClick={claimAdmin}
+                  disabled={isClaimingAdmin}
+                >
+                  <ShieldCheck className="size-4" aria-hidden="true" />
+                  {isClaimingAdmin ? "Mengklaim…" : "Klaim akses admin"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  data-ocid="nav.sign_out_button"
+                  onClick={signOut}
+                >
+                  <LogOut className="size-4" aria-hidden="true" />
+                  Keluar
+                </Button>
+              </>
             ) : (
               <Button
                 type="button"
@@ -144,19 +164,37 @@ export function Layout({ children }: LayoutProps) {
             </nav>
             <div className="mt-3">
               {isAuthenticated ? (
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full"
-                  data-ocid="nav.mobile.sign_out_button"
-                  onClick={() => {
-                    signOut();
-                    setMobileOpen(false);
-                  }}
-                >
-                  <LogOut className="size-4" aria-hidden="true" />
-                  Keluar
-                </Button>
+                <div className="flex flex-col gap-2">
+                  {!isAdmin ? (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      data-ocid="nav.mobile.claim_admin_button"
+                      onClick={() => {
+                        claimAdmin();
+                        setMobileOpen(false);
+                      }}
+                      disabled={isClaimingAdmin}
+                    >
+                      <ShieldCheck className="size-4" aria-hidden="true" />
+                      {isClaimingAdmin ? "Mengklaim…" : "Klaim akses admin"}
+                    </Button>
+                  ) : null}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full"
+                    data-ocid="nav.mobile.sign_out_button"
+                    onClick={() => {
+                      signOut();
+                      setMobileOpen(false);
+                    }}
+                  >
+                    <LogOut className="size-4" aria-hidden="true" />
+                    Keluar
+                  </Button>
+                </div>
               ) : (
                 <Button
                   type="button"

@@ -1,7 +1,7 @@
 import { LoadingState } from "@/components/StateViews";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
-import { LogIn, ShieldAlert } from "lucide-react";
+import { LogIn, ShieldAlert, ShieldCheck } from "lucide-react";
 import type { ReactNode } from "react";
 
 interface SignInPromptProps {
@@ -62,8 +62,15 @@ interface RequireAdminProps {
  * blocks signed-in non-admins with an access-denied message.
  */
 export function RequireAdmin({ children }: RequireAdminProps) {
-  const { isAuthenticated, isInitializing, isAdmin, isAdminLoading } =
-    useAuth();
+  const {
+    isAuthenticated,
+    isInitializing,
+    isAdmin,
+    isAdminLoading,
+    claimAdmin,
+    isClaimingAdmin,
+    claimAdminError,
+  } = useAuth();
 
   if (isInitializing) {
     return <LoadingState label="Memeriksa sesi…" />;
@@ -92,9 +99,26 @@ export function RequireAdmin({ children }: RequireAdminProps) {
             Akses ditolak
           </h1>
           <p className="text-sm text-muted-foreground">
-            Akun Anda tidak memiliki hak akses admin untuk halaman ini.
+            Akun Anda tidak memiliki hak akses admin untuk halaman ini. Jika
+            Anda pemilik aplikasi, klaim akses admin di bawah ini.
           </p>
         </div>
+        <Button
+          type="button"
+          size="lg"
+          data-ocid="claim_admin_button"
+          onClick={claimAdmin}
+          disabled={isClaimingAdmin}
+        >
+          <ShieldCheck className="size-4" aria-hidden="true" />
+          {isClaimingAdmin ? "Mengklaim…" : "Klaim akses admin"}
+        </Button>
+        {claimAdminError ? (
+          <p role="alert" className="text-sm text-destructive">
+            {claimAdminError.message ||
+              "Gagal mengklaim akses admin. Silakan coba lagi."}
+          </p>
+        ) : null}
       </div>
     );
   }

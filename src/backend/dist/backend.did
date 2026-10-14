@@ -147,6 +147,7 @@ service : {
   _internet_identity_sign_in_finish: () -> (Result__1);
   _internet_identity_sign_in_start: () -> (blob);
   assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  claimAdmin: () -> ();
   createBooking: (input: BookingInput) -> (BookingRequest);
   createRoom: (input: RoomInput) -> (Room);
   deleteRoom: (id: RoomId) -> (bool);

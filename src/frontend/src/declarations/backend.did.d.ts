@@ -128,6 +128,7 @@ export interface _SERVICE {
   '_internet_identity_sign_in_finish' : ActorMethod<[], Result__1>,
   '_internet_identity_sign_in_start' : ActorMethod<[], Uint8Array>,
   'assignCallerUserRole' : ActorMethod<[Principal, UserRole], undefined>,
+  'claimAdmin' : ActorMethod<[], undefined>,
   'createBooking' : ActorMethod<[BookingInput], BookingRequest>,
   'createRoom' : ActorMethod<[RoomInput], Room>,
   'deleteRoom' : ActorMethod<[RoomId], boolean>,

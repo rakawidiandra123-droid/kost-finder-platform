@@ -155,6 +155,7 @@ export enum UserRole {
 }
 export interface backendInterface {
     assignCallerUserRole(user: Principal, role: UserRole): Promise<void>;
+    claimAdmin(): Promise<void>;
     createBooking(input: BookingInput): Promise<BookingRequest>;
     createRoom(input: RoomInput): Promise<Room>;
     deleteRoom(id: RoomId): Promise<boolean>;

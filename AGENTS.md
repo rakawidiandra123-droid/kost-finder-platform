@@ -21,3 +21,6 @@
 - A Motoko query function cannot read the caller, so an admin-gated read must be a public shared ({caller}) func.
 - This core-infrastructure version exports only useActor, useInternetIdentity and InternetIdentityProvider; build the auth boundary from useInternetIdentity (isAuthenticated covers restored sessions).
 - Biome rejects role="status" on a div; use <output aria-live="polite"> for loading status regions.
+- Admin access is not first-caller-wins only: src/backend/main.mo exposes claimAdmin(), which grants #admin to the env-configured ADMIN_PRINCIPAL or to the caller when no admin is assigned yet, and is idempotent for an existing admin. The frontend must call it: useAuth exposes claimAdmin (a React Query mutation that invalidates the ['isCallerAdmin'] query), and RequireAdmin/Layout render a 'Klaim akses admin' control for a signed-in non-admin.
+- A Motoko migration function must be non-generic, so it cannot read canister environment variables; the actor body can read them with Runtime.envVar<system>(...) into a transient let, which is re-evaluated on every canister start and needs no migration or stable field.
+- AccessControl.isAdmin(state, caller) traps 'User is not registered' for a non-anonymous unregistered caller, so a claim function must check the configured principal / adminAssigned flag before calling isAdmin on an unknown caller.

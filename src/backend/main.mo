@@ -1,4 +1,6 @@
 import Map "mo:core/Map";
+import Principal "mo:core/Principal";
+import Runtime "mo:core/Runtime";
 import AccessControl "mo:caffeineai-authorization/access-control";
 import MixinAuthorization "mo:caffeineai-authorization/MixinAuthorization";
 import MixinObjectStorage "mo:caffeineai-object-storage/Mixin";
@@ -20,6 +22,43 @@ actor {
   let bookings : Map.Map<BookingTypes.BookingId, BookingTypes.BookingRequest>;
   let nextRoomId : { var value : Nat };
   let nextBookingId : { var value : Nat };
+
+  // Configured admin principal, read from the ADMIN_PRINCIPAL canister
+  // environment variable. Transient: re-read on every canister start, so it is
+  // always current and needs no migration. When set, that principal can claim
+  // #admin through claimAdmin() even if another admin already exists.
+  transient let configuredAdmin : ?Principal = switch (Runtime.envVar<system>("ADMIN_PRINCIPAL")) {
+    case (?text) { ?Principal.fromText(text) };
+    case null { null };
+  };
+
+  // Deterministic, recoverable admin bootstrap. The authorization package
+  // grants #admin to the FIRST non-anonymous caller (first-caller-wins); on a
+  // live canister that slot may already be claimed by a different principal,
+  // leaving the app owner registered as #user. This endpoint does not depend on
+  // being the first caller:
+  //   * already admin -> no-op (idempotent);
+  //   * caller == configuredAdmin -> granted #admin even if another admin exists;
+  //   * no admin assigned yet -> caller becomes admin;
+  //   * otherwise -> trap, directing the caller to an existing admin.
+  public shared ({ caller }) func claimAdmin() : async () {
+    if (caller.isAnonymous()) {
+      Runtime.trap("Harus masuk untuk mengklaim akses admin");
+    };
+    if (AccessControl.isAdmin(accessControlState, caller)) {
+      return;
+    };
+    let isConfigured = switch (configuredAdmin) {
+      case (?admin) { Principal.equal(admin, caller) };
+      case null { false };
+    };
+    if (isConfigured or not accessControlState.adminAssigned) {
+      accessControlState.userRoles.add(caller, #admin);
+      accessControlState.adminAssigned := true;
+      return;
+    };
+    Runtime.trap("Admin sudah ditetapkan; minta admin yang ada memberikan peran");
+  };
 
   include MixinAuthorization(accessControlState, null);
   include MixinObjectStorage();

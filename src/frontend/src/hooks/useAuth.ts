@@ -1,6 +1,6 @@
 import { createActor } from "@/backend";
 import { useActor, useInternetIdentity } from "@caffeineai/core-infrastructure";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 /**
  * Authentication + admin-role state for the whole app.
@@ -33,6 +33,16 @@ export function useAuth() {
     retry: false,
   });
 
+  const claimAdminMutation = useMutation({
+    mutationFn: async () => {
+      if (!actor) throw new Error("Backend belum siap.");
+      await actor.claimAdmin();
+    },
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["isCallerAdmin"] });
+    },
+  });
+
   const handleSignIn = () => {
     login();
   };
@@ -40,6 +50,10 @@ export function useAuth() {
   const handleSignOut = () => {
     clear();
     queryClient.clear();
+  };
+
+  const handleClaimAdmin = () => {
+    claimAdminMutation.mutate();
   };
 
   return {
@@ -53,5 +67,8 @@ export function useAuth() {
     isAdminLoading: isAuthenticated && adminQuery.isLoading,
     signIn: handleSignIn,
     signOut: handleSignOut,
+    claimAdmin: handleClaimAdmin,
+    isClaimingAdmin: claimAdminMutation.isPending,
+    claimAdminError: claimAdminMutation.error,
   };
 }
