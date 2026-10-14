@@ -1,0 +1,21 @@
+{
+  "overview": "Website kost dengan katalog kamar publik, pengajuan sewa, dan panel admin untuk mengelola kamar serta pengajuan.",
+  "features": [
+    "Jelajahi daftar kamar kost dengan foto, tipe, dan harga",
+    "Cari dan filter kamar berdasarkan tipe dan rentang harga",
+    "Lihat detail kamar lengkap dengan galeri foto dan fasilitas",
+    "Ajukan sewa kamar lewat formulir online",
+    "Masuk sebagai admin dengan Internet Identity",
+    "Kelola kamar: tambah, ubah, hapus, dan unggah foto",
+    "Kelola pengajuan sewa: setujui atau tolak"
+  ],
+  "category": "property-listing",
+  "tags": [
+    "kost",
+    "properti",
+    "sewa",
+    "manajemen",
+    "indonesia"
+  ],
+  "last_updated": "2026-10-14T14:49:15.662Z"
+}

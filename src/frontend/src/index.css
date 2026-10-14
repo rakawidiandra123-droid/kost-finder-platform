@@ -1,0 +1,188 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@font-face {
+  font-family: "Space Grotesk";
+  src: url("/assets/fonts/SpaceGrotesk.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "General Sans";
+  src: url("/assets/fonts/GeneralSans.woff2") format("woff2");
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Geist Mono";
+  src: url("/assets/fonts/GeistMono.woff2") format("woff2");
+  font-display: swap;
+}
+
+@layer base {
+  :root {
+    --font-display: "Space Grotesk", sans-serif;
+    --font-body: "General Sans", sans-serif;
+    --font-mono: "Geist Mono", monospace;
+    --radius: 0.75rem;
+
+    /* Light — "Cool Serene" kost catalog: cool off-white, deep ocean teal, amber accent */
+    --background: 0.98 0.006 220;
+    --foreground: 0.19 0.02 225;
+    --card: 1.0 0.003 220;
+    --card-foreground: 0.19 0.02 225;
+    --popover: 1.0 0.003 220;
+    --popover-foreground: 0.19 0.02 225;
+
+    --primary: 0.42 0.09 215;
+    --primary-foreground: 0.98 0.006 215;
+
+    --secondary: 0.95 0.012 220;
+    --secondary-foreground: 0.28 0.02 225;
+    --muted: 0.945 0.011 220;
+    --muted-foreground: 0.5 0.018 225;
+
+    --accent: 0.76 0.15 72;
+    --accent-foreground: 0.22 0.05 72;
+
+    --destructive: 0.55 0.21 25;
+    --destructive-foreground: 0.98 0.006 25;
+
+    --success: 0.58 0.14 158;
+    --success-foreground: 0.98 0.006 158;
+    --warning: 0.78 0.15 78;
+    --warning-foreground: 0.24 0.05 78;
+
+    --border: 0.9 0.012 220;
+    --input: 0.9 0.012 220;
+    --ring: 0.42 0.09 215;
+
+    --chart-1: 0.42 0.09 215;
+    --chart-2: 0.76 0.15 72;
+    --chart-3: 0.58 0.14 158;
+    --chart-4: 0.55 0.13 265;
+    --chart-5: 0.62 0.16 30;
+
+    --sidebar: 0.975 0.008 220;
+    --sidebar-foreground: 0.19 0.02 225;
+    --sidebar-primary: 0.42 0.09 215;
+    --sidebar-primary-foreground: 0.98 0.006 215;
+    --sidebar-accent: 0.945 0.011 220;
+    --sidebar-accent-foreground: 0.28 0.02 225;
+    --sidebar-border: 0.9 0.012 220;
+    --sidebar-ring: 0.42 0.09 215;
+
+    --gradient-primary: linear-gradient(
+      135deg,
+      oklch(0.46 0.1 212),
+      oklch(0.36 0.08 222)
+    );
+    --gradient-subtle: linear-gradient(
+      180deg,
+      oklch(0.985 0.006 220),
+      oklch(0.955 0.012 220)
+    );
+    --shadow-subtle: 0 1px 2px oklch(0.4 0.03 225 / 0.05), 0 1px 3px
+      oklch(0.4 0.03 225 / 0.04);
+    --shadow-elevated: 0 4px 12px oklch(0.4 0.03 225 / 0.07), 0 12px 28px
+      oklch(0.4 0.03 225 / 0.06);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .dark {
+    --background: 0.16 0.018 225;
+    --foreground: 0.94 0.008 220;
+    --card: 0.2 0.02 225;
+    --card-foreground: 0.94 0.008 220;
+    --popover: 0.22 0.02 225;
+    --popover-foreground: 0.94 0.008 220;
+
+    --primary: 0.72 0.1 210;
+    --primary-foreground: 0.16 0.018 225;
+
+    --secondary: 0.24 0.022 225;
+    --secondary-foreground: 0.86 0.01 220;
+    --muted: 0.24 0.022 225;
+    --muted-foreground: 0.62 0.015 220;
+
+    --accent: 0.8 0.14 74;
+    --accent-foreground: 0.18 0.03 74;
+
+    --destructive: 0.62 0.19 25;
+    --destructive-foreground: 0.16 0.018 25;
+
+    --success: 0.68 0.14 158;
+    --success-foreground: 0.16 0.018 158;
+    --warning: 0.8 0.14 78;
+    --warning-foreground: 0.18 0.03 78;
+
+    --border: 0.3 0.022 225;
+    --input: 0.3 0.022 225;
+    --ring: 0.72 0.1 210;
+
+    --chart-1: 0.72 0.1 210;
+    --chart-2: 0.8 0.14 74;
+    --chart-3: 0.68 0.14 158;
+    --chart-4: 0.66 0.14 265;
+    --chart-5: 0.7 0.16 30;
+
+    --sidebar: 0.2 0.02 225;
+    --sidebar-foreground: 0.94 0.008 220;
+    --sidebar-primary: 0.72 0.1 210;
+    --sidebar-primary-foreground: 0.16 0.018 225;
+    --sidebar-accent: 0.24 0.022 225;
+    --sidebar-accent-foreground: 0.86 0.01 220;
+    --sidebar-border: 0.3 0.022 225;
+    --sidebar-ring: 0.72 0.1 210;
+
+    --gradient-primary: linear-gradient(
+      135deg,
+      oklch(0.74 0.1 210),
+      oklch(0.62 0.09 220)
+    );
+    --gradient-subtle: linear-gradient(
+      180deg,
+      oklch(0.18 0.02 225),
+      oklch(0.22 0.022 225)
+    );
+    --shadow-subtle: 0 1px 2px oklch(0 0 0 / 0.3), 0 1px 3px oklch(0 0 0 / 0.25);
+    --shadow-elevated: 0 4px 12px oklch(0 0 0 / 0.35), 0 12px 28px
+      oklch(0 0 0 / 0.3);
+    --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground font-body antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display;
+  }
+}
+
+@layer utilities {
+  .transition-smooth {
+    transition: var(--transition-smooth);
+  }
+  .bg-gradient-primary {
+    background-image: var(--gradient-primary);
+  }
+  .bg-gradient-subtle {
+    background-image: var(--gradient-subtle);
+  }
+  .shadow-subtle {
+    box-shadow: var(--shadow-subtle);
+  }
+  .shadow-elevated {
+    box-shadow: var(--shadow-elevated);
+  }
+  .text-balance {
+    text-wrap: balance;
+  }
+}

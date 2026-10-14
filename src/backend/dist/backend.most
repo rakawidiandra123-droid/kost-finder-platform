@@ -1,0 +1,111 @@
+// Version: 4.0.0
+type AccessControlState__201339279 =
+  {
+    var adminAssigned : Bool;
+    userRoles : Map__230067015<Principal, UserRole__91647283>
+  };
+type BookingId__429964979 = BookingId__572944220;
+type BookingId__572944220 = Nat;
+type BookingRequest__371219916 =
+  {
+    applicantName : Text;
+    createdAt : Timestamp__972749111;
+    email : Text;
+    id : BookingId__429964979;
+    message : Text;
+    moveInDate : Text;
+    phone : Text;
+    roomId : RoomId__158035477;
+    status : BookingStatus__866642965
+  };
+type BookingRequest__766598833 =
+  {
+    applicantName : Text;
+    createdAt : Int;
+    email : Text;
+    id : Nat;
+    message : Text;
+    moveInDate : Text;
+    phone : Text;
+    roomId : Nat;
+    status : BookingStatus__278555048
+  };
+type BookingStatus__278555048 = {#approved; #pending; #rejected};
+type BookingStatus__866642965 = {#approved; #pending; #rejected};
+type Data__44217153<K, V> = {var count : Nat__227979830; kvs : [var ?(K, V)]};
+type ExternalBlob__675229786 = Blob;
+type Internal__283199666<K, V> =
+  {children : [var ?Node__204828119<K, V>]; data : Data__44217153<K, V>};
+type Leaf__598469445<K, V> = {data : Data__44217153<K, V>};
+type Map__230067015<K, V> = Map__405889023<K, V>;
+type Map__405889023<K, V> = Map__603270868<K, V>;
+type Map__603270868<K, V> =
+  {var root : Node__204828119<K, V>; var size : Nat__227979830};
+type Nat__227979830 = Nat__920180692;
+type Nat__920180692 = Nat;
+type NewActor__769816496 =
+  {
+    accessControlState : AccessControlState__201339279;
+    bookings : Map__230067015<Nat, BookingRequest__766598833>;
+    nextBookingId : {var value : Nat};
+    nextRoomId : {var value : Nat};
+    rooms : Map__230067015<Nat, Room__1061482576>
+  };
+type Node__204828119<K, V> =
+  {#internal : Internal__283199666<K, V>; #leaf : Leaf__598469445<K, V>};
+type OldActor__512397517 = {};
+type RoomId__158035477 = RoomId__905989824;
+type RoomId__363750221 = RoomId__905989824;
+type RoomId__905989824 = Nat;
+type RoomStatus__458843262 = {#available; #occupied};
+type RoomStatus__927321761 = {#available; #occupied};
+type RoomType__249875037 = {#campur; #putra; #putri};
+type RoomType__529556096 = {#campur; #putra; #putri};
+type Room__1061482576 =
+  {
+    description : Text;
+    facilities : [Text];
+    id : Nat;
+    monthlyPrice : Nat;
+    name : Text;
+    photos : [Blob];
+    roomType : RoomType__249875037;
+    status : RoomStatus__927321761
+  };
+type Room__355553194 =
+  {
+    description : Text;
+    facilities : [Text];
+    id : RoomId__363750221;
+    monthlyPrice : Nat;
+    name : Text;
+    photos : [ExternalBlob__675229786];
+    roomType : RoomType__529556096;
+    status : RoomStatus__458843262
+  };
+type Timestamp__301639476 = Int;
+type Timestamp__972749111 = Timestamp__301639476;
+type UserRole__91647283 = {#admin; #guest; #user};
+{
+  "00000000_000000" : OldActor__512397517 -> NewActor__769816496
+}
+actor  {
+  stable accessControlState :
+    {
+      var adminAssigned : Bool;
+      userRoles : Map__230067015<Principal, UserRole__91647283>
+    };
+  stable bookings :
+    {
+      var root :
+        Node__204828119<BookingId__429964979, BookingRequest__371219916>;
+      var size : Nat__227979830
+    };
+  stable nextBookingId : {var value : Nat};
+  stable nextRoomId : {var value : Nat};
+  stable rooms :
+    {
+      var root : Node__204828119<RoomId__363750221, Room__355553194>;
+      var size : Nat__227979830
+    }
+};

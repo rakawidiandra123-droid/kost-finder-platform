@@ -1,0 +1,164 @@
+type _ImmutableObjectStorageRefillResult = 
+ record {
+   success: opt bool;
+   topped_up_amount: opt nat;
+ };
+type _ImmutableObjectStorageRefillInformation = record {
+                                                  proposed_top_up_amount:
+                                                   opt nat;};
+type _ImmutableObjectStorageCreateCertificateResult = 
+ record {
+   blob_hash: text;
+   method: text;
+ };
+type Value = 
+ variant {
+   "bool": bool;
+   float: float64;
+   "int": int;
+   "nat": nat;
+   "null";
+   "text": text;
+ };
+type UserRole = 
+ variant {
+   admin;
+   guest;
+   user;
+ };
+type Timestamp = int;
+type RoomType = 
+ variant {
+   campur;
+   putra;
+   putri;
+ };
+type RoomStatus = 
+ variant {
+   available;
+   occupied;
+ };
+type RoomInput = 
+ record {
+   description: text;
+   facilities: vec text;
+   monthlyPrice: nat;
+   name: text;
+   photos: vec ExternalBlob;
+   roomType: RoomType;
+   status: RoomStatus;
+ };
+type RoomId = nat;
+type RoomFilter = 
+ record {
+   keyword: opt text;
+   maxPrice: opt nat;
+   minPrice: opt nat;
+   roomType: opt RoomType;
+ };
+type Room = 
+ record {
+   description: text;
+   facilities: vec text;
+   id: RoomId;
+   monthlyPrice: nat;
+   name: text;
+   photos: vec ExternalBlob;
+   roomType: RoomType;
+   status: RoomStatus;
+ };
+type Result__1 = 
+ variant {
+   err: Error;
+   ok;
+ };
+type Result = 
+ record {
+   hasMore: bool;
+   rows: vec vec Cell;
+ };
+type ExternalBlob = blob;
+type Error = 
+ variant {
+   AmbiguousAttribute: record {
+                         field: text;
+                         sources: vec text;
+                       };
+   FrontendOriginMismatch: record {
+                             expected: vec text;
+                             got: text;
+                           };
+   FrontendOriginsNotConfigured;
+   MalformedCandid;
+   MissingField: text;
+   MixedSsoSources: record {
+                      otherKeys: vec text;
+                      ssoKeys: vec text;
+                    };
+   NoAttributes;
+   Stale: record {ageNs: nat;};
+   UnknownNonce;
+   UntrustedSsoSource: record {domain: text;};
+ };
+type Cell = 
+ record {
+   name: text;
+   value: Value;
+ };
+type BookingStatus = 
+ variant {
+   approved;
+   pending;
+   rejected;
+ };
+type BookingRequest = 
+ record {
+   applicantName: text;
+   createdAt: Timestamp;
+   email: text;
+   id: BookingId;
+   message: text;
+   moveInDate: text;
+   phone: text;
+   roomId: RoomId;
+   status: BookingStatus;
+ };
+type BookingInput = 
+ record {
+   applicantName: text;
+   email: text;
+   message: text;
+   moveInDate: text;
+   phone: text;
+   roomId: RoomId;
+ };
+type BookingId = nat;
+service : {
+  _immutableObjectStorageBlobsAreLive: (hashes: vec blob) -> (vec bool) query;
+  _immutableObjectStorageBlobsToDelete: () -> (vec blob) query;
+  _immutableObjectStorageConfirmBlobDeletion: (blobs: vec blob) -> ();
+  _immutableObjectStorageCreateCertificate: (blobHash: text) ->
+   (_ImmutableObjectStorageCreateCertificateResult);
+  _immutableObjectStorageRefillCashier: (refillInformation:
+   opt _ImmutableObjectStorageRefillInformation) ->
+   (_ImmutableObjectStorageRefillResult);
+  _immutableObjectStorageUpdateGatewayPrincipals: () -> ();
+  _initialize_access_control: () -> ();
+  _internet_identity_sign_in_finish: () -> (Result__1);
+  _internet_identity_sign_in_start: () -> (blob);
+  assignCallerUserRole: (user: principal, role: UserRole) -> ();
+  createBooking: (input: BookingInput) -> (BookingRequest);
+  createRoom: (input: RoomInput) -> (Room);
+  deleteRoom: (id: RoomId) -> (bool);
+  execute: (qJson: text) -> (Result) query;
+  getApiDoc: () -> (text) query;
+  getCallerUserRole: () -> (UserRole) query;
+  getRoom: (id: RoomId) -> (opt Room) query;
+  isCallerAdmin: () -> (bool) query;
+  listBookings: (status: opt BookingStatus) -> (vec BookingRequest);
+  listRooms: (filter: RoomFilter) -> (vec Room) query;
+  schema: () -> (text) query;
+  updateBookingStatus: (id: BookingId, status: BookingStatus) ->
+   (opt BookingRequest);
+  updateRoom: (id: RoomId, input: RoomInput) -> (opt Room);
+}
